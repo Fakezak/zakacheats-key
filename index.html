@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Zaka Key | Secure Code Vault</title>
+    <title>Zaka Key | GRC Secure Vault</title>
     <style>
         /* Base Reset & Futuristic UI */
         * {
@@ -182,6 +182,7 @@
             color: #4b5a75;
             margin: 20px 0;
             transition: all 0.2s;
+            font-family: 'Courier New', monospace;
         }
         .code-display-box.unlocked {
             color: #10b981;
@@ -248,7 +249,7 @@
 <div class="orb orb2"></div>
 
 <header>
-    <div class="logo">⚡ ZAKA KEY ⚡</div>
+    <div class="logo">⚡ ZAKA KEY | GRC ⚡</div>
 </header>
 
 <div class="security-panel" id="securityPanel">
@@ -258,7 +259,7 @@
 
 <main>
     <div class="generator-card">
-        <h2>🔐 Premium Unlock</h2>
+        <h2>🔐 GRC Premium Unlock</h2>
         <div class="progress-container">
             <div class="progress-bar" id="progressBar"></div>
         </div>
@@ -275,7 +276,7 @@
     </div>
 </main>
 <footer>
-    <p>🔍 Real sponsor ads • Anti-Adblock & VPN Protection • Random premium offers</p>
+    <p>🔍 Real sponsor ads • Anti-Adblock & VPN Protection • GRC-XXXXXXXX format</p>
 </footer>
 
 <script>
@@ -313,14 +314,9 @@
     }
     
     // ---------- ADVANCED DETECTION: AdBlocker + VPN / DNS BLOCKING ----------
-    // Method: 1) fetch known ad script (Google AdSense / DoubleClick) 2) custom element injection
-    // 3) VPN detection via ipapi.co (proxy, hosting, vpn flags)
-    // 4) DNS blocking detection: if ad domain fetch is blocked -> considered adblock
-    
     let detectionDetails = "";
     
     async function detectAdblockAndVPN() {
-        // reset UI
         const badge = document.getElementById('securityBadge');
         const actionBtn = document.getElementById('actionButton');
         const warningDiv = document.getElementById('globalWarning');
@@ -335,14 +331,12 @@
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 5000);
-            const fetchTest = await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+            await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
                 method: 'HEAD',
-                mode: 'no-cors',     // no-cors still fails if blocked by network/adblock
+                mode: 'no-cors',
                 signal: controller.signal
-            }).catch(err => { throw err; });
+            });
             clearTimeout(timeoutId);
-            // If we get any response (even opaque) it's probably not blocked by adblock.
-            // But some adblockers may block connection entirely → fetch will throw TypeError
         } catch (err) {
             console.warn("AdScript fetch error:", err);
             if (err.name === 'TypeError' || err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
@@ -375,34 +369,29 @@
             clearTimeout(vpnTimeout);
             if (response.ok) {
                 const data = await response.json();
-                // ipapi returns fields: proxy (bool), tor (bool), vpn (bool sometimes) 
                 if (data.proxy === true || data.tor === true || data.vpn === true) {
                     vpnDetected = true;
                     detectionDetails += " VPN/Proxy/Tor detected via IP analysis.";
                 }
-                // Additional: check if 'org' contains known vpn providers (optional)
                 if (data.org && (data.org.toLowerCase().includes('vpn') || data.org.toLowerCase().includes('proxy'))) {
                     vpnDetected = true;
                 }
             }
         } catch (err) {
             console.warn("VPN detection failed or rate-limited:", err);
-            // if vpn detection fails, not critical, but we log as potential, but not mark as vpn
         }
         
-        // ---- TEST 4: DNS based blocking simulation - fetch random known ad domain ----
+        // ---- TEST 4: DNS based blocking simulation - fetch doubleclick ----
         try {
-            const dnsTest = await fetch('https://securepubads.g.doubleclick.net/tag/js/gpt.js', {
+            await fetch('https://securepubads.g.doubleclick.net/tag/js/gpt.js', {
                 method: 'HEAD',
                 mode: 'no-cors'
-            }).catch(e => { throw e; });
+            });
         } catch (dnsErr) {
-            // if this fails, adblock/dns is likely filtering
             if (!adBlockDetected) adBlockDetected = true;
             detectionDetails += " Doubleclick fetch blocked → DNS/ad-filter.";
         }
         
-        // final decision: securityClear = true only if NO adblock AND NO vpn
         const threatDetected = adBlockDetected || vpnDetected;
         
         if (threatDetected) {
@@ -415,7 +404,7 @@
             actionBtn.disabled = true;
             actionBtn.textContent = "⛔ Access Denied";
             document.getElementById('copyButton').disabled = true;
-            document.getElementById('instructionLabel').innerHTML = "❌ Adblocker or VPN detected. Disable them to generate premium key.";
+            document.getElementById('instructionLabel').innerHTML = "❌ Adblocker or VPN detected. Disable them to generate GRC premium key.";
             return false;
         } else {
             securityClear = true;
@@ -424,7 +413,7 @@
             document.getElementById('globalWarning').style.display = 'none';
             actionBtn.disabled = false;
             actionBtn.textContent = "🌐 Visit Sponsor Ad";
-            document.getElementById('instructionLabel').innerHTML = "Click 'Visit Sponsor Ad' to view random real sponsor offer & unlock progress.";
+            document.getElementById('instructionLabel').innerHTML = "Click 'Visit Sponsor Ad' to view random real sponsor offer & unlock progress. Final key format: GRC-XXXXXXXX (8 capital letters)";
             return true;
         }
     }
@@ -447,33 +436,40 @@
             if (securityClear) actionButton.textContent = "🌐 Visit Sponsor Ad";
             else actionButton.textContent = "⛔ Blocked";
         } else {
-            // Completed all steps
+            // All steps completed
             progressBar.style.width = "100%";
             stepTracker.textContent = "✅ ACCESS GRANTED";
             stepTracker.style.color = "#10b981";
-            instructionLabel.innerHTML = "✨ Verification complete! Your exclusive premium key is ready.";
-            generateUnlockKey();
+            instructionLabel.innerHTML = "✨ Verification complete! Your GRC premium key (8 random capital letters) is ready.";
+            generateGRCKey();
         }
     }
     
-    // final key generation
-    function generateUnlockKey() {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
-        let segment1 = '', segment2 = '';
-        for (let i = 0; i < 4; i++) segment1 += chars[Math.floor(Math.random() * chars.length)];
-        for (let i = 0; i < 6; i++) segment2 += chars[Math.floor(Math.random() * chars.length)];
-        const finalCode = `ZKA-${segment1}-${segment2}`;
-        codeDisplay.textContent = finalCode;
+    // ========== KEY GENERATION: GRC- followed by exactly 8 uppercase letters ==========
+    function generateGRCKey() {
+        const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';  // Full uppercase alphabet, excluding similar-looking O/I to avoid confusion but can include if needed, but using A-Z full.
+        // Better to use clear A-Z all 26 letters for true random full caps
+        const fullAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let randomPart = '';
+        for (let i = 0; i < 8; i++) {
+            const randomIndex = Math.floor(Math.random() * fullAlphabet.length);
+            randomPart += fullAlphabet.charAt(randomIndex);
+        }
+        const finalKey = `GRC-${randomPart}`;  // format: GRC-XXXXXXXX (8 letters)
+        codeDisplay.textContent = finalKey;
         codeDisplay.classList.add('unlocked');
         copyButton.disabled = false;
         actionButton.disabled = true;
         actionButton.textContent = "🔓 UNLOCKED";
         actionButton.style.background = "#10b981";
-        instructionLabel.innerHTML = "🎉 Key generated! Copy and redeem your premium access.";
+        instructionLabel.innerHTML = "🎉 Key generated! Your code is GRC-XXXXXXXX (8 random uppercase letters). Copy it now.";
     }
     
     function copyKey() {
-        if (codeDisplay.textContent === '••••••••' || codeDisplay.textContent === 'LOCKED') return;
+        if (codeDisplay.textContent === '••••••••' || codeDisplay.textContent === 'LOCKED' || codeDisplay.textContent.includes('GRC') === false) {
+            // Not yet generated
+            return;
+        }
         navigator.clipboard.writeText(codeDisplay.textContent).then(() => {
             copyButton.textContent = "✓ Copied!";
             copyButton.classList.add('copied');
@@ -488,28 +484,23 @@
     
     // action for each step: open real random ad website, then simulate verification timer
     function handleAction() {
-        // Block if security not cleared
         if (!securityClear) {
             instructionLabel.innerHTML = "⛔ Security violation (AdBlock/VPN). Please disable protections and refresh.";
             return;
         }
         
-        // if generator already completed (step > total) ignore
         if (currentStep > TOTAL_STEPS) return;
         
-        // if waiting for ad verification, don't allow multiple clicks
         if (waitingForAd) return;
         
-        // open real random ad website (genuine real offer website)
         const randomUrl = getRandomAdUrl();
         window.open(randomUrl, '_blank', 'noopener,noreferrer');
         
-        // disable action button temporarily, start countdown simulation (like confirming ad view)
         waitingForAd = true;
         actionButton.disabled = true;
         let timeLeft = 5;
         actionButton.textContent = `⏳ Verify (${timeLeft}s) - Stay on page`;
-        instructionLabel.innerHTML = `✅ Ad opened: ${randomUrl.replace('https://', '')}<br>⏱️ Wait ${timeLeft} seconds, then continue. (Adblock check passed)`;
+        instructionLabel.innerHTML = `✅ Ad opened: ${randomUrl.replace('https://', '').replace('http://', '')}<br>⏱️ Wait ${timeLeft} seconds, then continue. (Adblock safe verified)`;
         
         if (countdownTimer) clearInterval(countdownTimer);
         countdownTimer = setInterval(() => {
@@ -518,10 +509,8 @@
                 clearInterval(countdownTimer);
                 countdownTimer = null;
                 waitingForAd = false;
-                // Move to next step
                 currentStep++;
                 updateStepUI();
-                // re-enable action button only if not finished
                 if (currentStep <= TOTAL_STEPS) {
                     actionButton.disabled = false;
                     if (securityClear) actionButton.textContent = "🌐 Visit Sponsor Ad";
@@ -530,16 +519,14 @@
                 }
                 instructionLabel.innerHTML = (currentStep <= TOTAL_STEPS) 
                     ? `Step ${currentStep} ready. Click next sponsor ad to continue.` 
-                    : "Verification completed! Your key appears below.";
+                    : "Verification completed! Your GRC-XXXXXXXX key appears below.";
             } else {
                 actionButton.textContent = `⏳ Verify (${timeLeft}s)`;
             }
         }, 1000);
     }
     
-    // reset if needed but we keep detection once
     async function initSecurityAndApp() {
-        // disable button during security checks
         actionButton.disabled = true;
         actionButton.textContent = "🔍 Security Scan...";
         instructionLabel.innerHTML = "🔒 Running deep security scan: AdBlock, VPN, DNS filters...";
@@ -550,10 +537,9 @@
             currentStep = 1;
             waitingForAd = false;
             updateStepUI();
-            // attach event listener safely
             actionButton.onclick = handleAction;
             copyButton.onclick = copyKey;
-            instructionLabel.innerHTML = "✅ Security passed. Click 'Visit Sponsor Ad' to open a real sponsor website and unlock step by step.";
+            instructionLabel.innerHTML = "✅ Security passed. Click 'Visit Sponsor Ad' to open a real sponsor website and unlock step by step. Final key format: GRC + 8 uppercase letters.";
         } else {
             securityClear = false;
             actionButton.disabled = true;
@@ -563,23 +549,17 @@
         }
     }
     
-    // ---- additional re-check on visibility? but only once on load ----
     window.addEventListener('load', () => {
         initSecurityAndApp();
-        // optional: backup ad blocker re-check if user tries to cheat? but main detection is enough
-        // also ensure copy button pre-disabled
         copyButton.disabled = true;
         codeDisplay.textContent = "🔒 LOCKED";
         codeDisplay.classList.remove('unlocked');
     });
     
-    // Extra style for copied effect 
+    // Add style for copy effect
     const styleCopied = document.createElement('style');
     styleCopied.textContent = `.btn-copy.copied { background: #10b981 !important; color: white !important; border-color: #10b981 !important; }`;
     document.head.appendChild(styleCopied);
-    
-    // Refresh warning if any future event but core already functional.
-    // also prevent VPN evasion by making sure ip detection runs once, but secure.
 </script>
 </body>
 </html>
